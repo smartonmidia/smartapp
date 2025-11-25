@@ -157,25 +157,25 @@
             object-fit: contain;
         }
         /* transições sutis (find in / find out) */
+        /* Estado inicial (invisível) */
+        /* ===== fade: 1s out + 1s in = 2s total de esmaecimento entre mídias ===== */
+        /* Estado inicial (invisível) */
         
         .fade {
             opacity: 0;
-            transform: translateY(6px) scale(0.998);
-            filter: blur(0.6px);
-            transition: opacity 480ms cubic-bezier(.22, .95, .26, 1), transform 480ms cubic-bezier(.22, .95, .26, 1), filter 480ms;
-            position: absolute;
-            width: 100%;
-            height: 100%;
+            transform: scale(0.995);
+            filter: blur(1.5px);
+            transition: opacity 1s ease, transform 1s ease, filter 1s ease;
             will-change: opacity, transform, filter;
         }
+        /* Estado ativo (visível) */
         
-        .active {
+        .fade.active {
             opacity: 1;
-            transform: translateY(0) scale(1);
-            filter: blur(0);
-            z-index: 1;
+            transform: scale(1);
+            filter: blur(0px);
+            transition: opacity 2s ease, transform 2s ease, filter 2s ease;
         }
-        /* Responsividade automática para mídias em #superior */
         
         #superior>* {
             position: absolute !important;
@@ -270,7 +270,7 @@
             text-align: left;
             position: relative;
             margin-right: 8px;
-            letter-spacing: -8px;
+            letter-spacing: -12px;
         }
         
         .pontos .dot {
@@ -407,7 +407,7 @@
     <!-- Modal UID (empresaId) -->
     <div id="uidModal" role="dialog" aria-modal="true" aria-labelledby="uidTitle" aria-describedby="uidDesc">
         <div class="box" role="document">
-            <h2 id="uidTitle">Informe o UID (empresaId)</h2>
+            <h2 id="uidTitle">Informe o UID </h2>
             <p id="uidDesc">Digite o UID/empresaId para carregar as mídias e configurações desta empresa.</p>
             <input id="empresaIdInput" type="text" placeholder="Ex: UID90909090" />
             <div id="uidButtons">
@@ -614,6 +614,11 @@
                     const d = document.createElement('div');
                     d.className = 'fade texto';
                     d.innerHTML = String(item.texto).replace(/\n/g, '<br>');
+                    // exposer: startReady — para consistência com outras mídias
+                    d.startReady = function() {
+                        // texto pode entrar rapidamente
+                        setTimeout(() => d.classList.add('active'), 16);
+                    };
                     return d;
                 }
 
@@ -650,71 +655,155 @@
                     ifr.style.height = '110%';
                     ifr.style.marginTop = '-40px';
                     ifr.style.border = '0';
-                    return wrapMedia(ifr);
-                }
+                    const wrapper = wrapMedia(ifr);
 
-                if (src && /docs\.google\.com\/presentation\/d\/.+\/embed/i.test(src)) {
-                    const containerIframe = document.createElement('div');
-                    containerIframe.style.position = 'relative';
-                    containerIframe.style.width = '100%';
-                    containerIframe.style.height = '100%';
-                    containerIframe.style.background = 'black';
+                    // startReady: só adiciona .active quando o iframe estiver carregado
+                    wrapper.startReady = function() {
+                        let called = false;
+                        const onLoad = () => {
+                            if (called) return;
+                            called = true;
+                            wrapper.classList.add('active');
+                            cleanup();
+                        };
+                        const onError = () => {
+                            if (called) return;
+                            called = true;
+                            console.warn('iframe load error', src);
+                            wrapper.classList.add('active');
+                            cleanup();
+                        };
 
-                    const loading = document.createElement('div');
-                    loading.style.position = 'absolute';
-                    loading.style.top = '50%';
-                    loading.style.left = '50%';
-                    loading.style.transform = 'translate(-50%, -50%)';
-                    loading.style.color = 'white';
-                    loading.style.fontSize = '22px';
-                    loading.style.fontFamily = 'sans-serif';
-                    loading.style.opacity = '0.8';
-                    loading.textContent = 'Carregando...';
-                    containerIframe.appendChild(loading);
+                        function cleanup() {
+                            ifr.removeEventListener('load', onLoad);
+                            ifr.removeEventListener('error', onError);
+                        }
+                        ifr.addEventListener('load', onLoad);
+                        ifr.addEventListener('error', onError);
 
-                    const ifr = document.createElement('iframe');
-                    ifr.src = src;
-                    ifr.style.width = '100%';
-                    ifr.style.height = '100%';
-                    ifr.style.border = '0';
-                    ifr.style.opacity = '0';
-                    ifr.allow = 'autoplay; encrypted-media; fullscreen';
-                    ifr.setAttribute('allowfullscreen', 'true');
-                    containerIframe.appendChild(ifr);
-
-                    setTimeout(() => {
-                        ifr.style.transition = 'opacity 700ms ease';
-                        ifr.style.opacity = '1';
-                        loading.remove();
-                    }, 1500);
-
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'media-wrap fade';
-                    wrapper.style.position = 'absolute';
-                    wrapper.style.inset = '0';
-                    wrapper.appendChild(containerIframe);
+                        // safety: se não carregar em X ms, mostra mesmo assim
+                        setTimeout(() => {
+                            if (!called) {
+                                called = true;
+                                wrapper.classList.add('active');
+                                cleanup();
+                            }
+                        }, 9000);
+                    };
                     return wrapper;
                 }
 
-                // VIDEOS
+                // VIDEOS — versão robusta (mostra só quando playing / canplay / timeout)
                 if (tipo === 'VIDEO' || /\.mp4($|\?)/i.test(src) || /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(src)) {
                     const v = document.createElement('video');
                     v.src = src;
                     v.autoplay = true;
                     v.muted = true;
                     v.playsInline = true;
+                    v.setAttribute('playsinline', ''); // reforço para iOS / WebView
                     v.controls = false;
                     v.preload = 'auto';
                     v.style.objectFit = 'contain';
                     v.style.objectPosition = 'center center';
-                    v.style.backgroundColor = 'black';
+                    v.style.backgroundColor = 'transparent';
                     v.style.width = '100%';
                     v.style.height = '100%';
                     v.style.display = 'block';
                     v.style.position = 'relative';
+                    v.style.opacity = '1'; // garantir visível por padrão
 
                     const wrapped = wrapMedia(v);
 
+                    // helper: ativar exibição suave
+                    function ativarExibicaoSuave() {
+                        try {
+                            // remove overlays internos se existirem
+                            const loaders = wrapped.querySelectorAll('.loading, .loading-overlay');
+                            loaders.forEach(n => n.remove());
+                        } catch (e) {}
+                        try {
+                            wrapped.classList.add('active');
+                        } catch (e) {}
+                    }
+
+                    // startReady exposto para ser chamado APÓS append no DOM
+                    wrapped.startReady = function() {
+                        let safetyTimer = null;
+                        let settled = false;
+
+                        const onPlaying = () => {
+                            if (settled) return;
+                            settled = true;
+                            ativarExibicaoSuave();
+                            cleanup();
+                        };
+
+                        const onCanPlayThrough = () => {
+                            try {
+                                v.play().catch(() => {});
+                            } catch {}
+                        };
+
+                        const onCanPlay = () => {
+                            try {
+                                v.play().catch(() => {});
+                            } catch {}
+                            // small grace after canplay: if buffered enough, show quickly
+                            setTimeout(() => {
+                                if (v.readyState >= 3 && !settled) {
+                                    settled = true;
+                                    ativarExibicaoSuave();
+                                    cleanup();
+                                }
+                            }, 350);
+                        };
+
+                        const onError = () => {
+                            if (settled) return;
+                            settled = true;
+                            console.warn('video element error:', src);
+                            ativarExibicaoSuave();
+                            cleanup();
+                        };
+
+                        function cleanup() {
+                            clearTimeout(safetyTimer);
+                            v.removeEventListener('playing', onPlaying);
+                            v.removeEventListener('canplaythrough', onCanPlayThrough);
+                            v.removeEventListener('canplay', onCanPlay);
+                            v.removeEventListener('error', onError);
+                        }
+
+                        v.addEventListener('playing', onPlaying);
+                        v.addEventListener('canplaythrough', onCanPlayThrough);
+                        v.addEventListener('canplay', onCanPlay);
+                        v.addEventListener('error', onError);
+
+                        // force load / try play
+                        try {
+                            v.load();
+                            const p = v.play && v.play();
+                            if (p && typeof p.then === 'function') p.catch(() => {});
+                        } catch (e) {}
+
+                        // safety fallback: se nada em X ms, mostra mesmo assim
+                        safetyTimer = setTimeout(() => {
+                            if (!settled) {
+                                settled = true;
+                                if (v.readyState >= 2) ativarExibicaoSuave();
+                                else {
+                                    console.warn('safety timeout: vídeo não pronto, mostrando mesmo assim', src);
+                                    ativarExibicaoSuave();
+                                }
+                                cleanup();
+                            }
+                        }, 10000); // 10s safety (pode ajustar)
+                    };
+
+                    // expor v para controle externo se necessário
+                    wrapped.mediaElement = v;
+
+                    // mantém eventos básicos
                     v.onended = () => {};
                     v.onerror = () => console.warn('Video erro (elemento):', src);
 
@@ -731,7 +820,48 @@
                     img.style.display = 'block';
                     img.style.width = '100%';
                     img.style.height = '100%';
-                    return wrapMedia(img);
+                    const wrapper = wrapMedia(img);
+
+                    // startReady: aguarda onload do img (ou mostra imediatamente se já estiver em cache)
+                    wrapper.startReady = function() {
+                        let called = false;
+                        const onLoad = () => {
+                            if (called) return;
+                            called = true;
+                            wrapper.classList.add('active');
+                            cleanup();
+                        };
+                        const onError = () => {
+                            if (called) return;
+                            called = true;
+                            console.warn('image load error', src);
+                            wrapper.classList.add('active');
+                            cleanup();
+                        };
+
+                        function cleanup() {
+                            img.removeEventListener('load', onLoad);
+                            img.removeEventListener('error', onError);
+                        }
+                        img.addEventListener('load', onLoad);
+                        img.addEventListener('error', onError);
+
+                        // se já carregada, ativa imediatamente
+                        if (img.complete && img.naturalWidth !== 0) {
+                            onLoad();
+                            return;
+                        }
+
+                        // safety fallback
+                        setTimeout(() => {
+                            if (!called) {
+                                called = true;
+                                wrapper.classList.add('active');
+                                cleanup();
+                            }
+                        }, 7000);
+                    };
+                    return wrapper;
                 }
 
                 // IFRAME genérico
@@ -742,11 +872,47 @@
                     ifr.style.height = '100%';
                     ifr.frameBorder = '0';
                     ifr.allow = 'fullscreen';
-                    return wrapMedia(ifr);
+                    const wrapper = wrapMedia(ifr);
+
+                    wrapper.startReady = function() {
+                        let called = false;
+                        const onLoad = () => {
+                            if (called) return;
+                            called = true;
+                            wrapper.classList.add('active');
+                            cleanup();
+                        };
+                        const onError = () => {
+                            if (called) return;
+                            called = true;
+                            console.warn('iframe error', src);
+                            wrapper.classList.add('active');
+                            cleanup();
+                        };
+
+                        function cleanup() {
+                            ifr.removeEventListener('load', onLoad);
+                            ifr.removeEventListener('error', onError);
+                        }
+                        ifr.addEventListener('load', onLoad);
+                        ifr.addEventListener('error', onError);
+
+                        // safety fallback
+                        setTimeout(() => {
+                            if (!called) {
+                                called = true;
+                                wrapper.classList.add('active');
+                                cleanup();
+                            }
+                        }, 9000);
+                    };
+
+                    return wrapper;
                 }
 
                 return null;
             }
+
 
             function registrarExibicaoSafe(item, ordem) {
                 try {
@@ -1364,4 +1530,3 @@
 </body>
 
 </html>
-
