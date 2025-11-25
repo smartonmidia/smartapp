@@ -441,7 +441,39 @@
         .pontos .dot {
             font-size: 1.3rem;
         }
-    if ('serviceWorker' in navigator) {
+    </style>
+
+    <link rel="manifest" href="manifest.json">
+    <script>
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.register("/smartapp/service-worker.js");
+        }
+    </script>
+
+
+    <script>
+        /* ---------- Firebase init (compat) ---------- */
+        const firebaseConfig = {
+            apiKey: "AIzaSyDE1V9V4w0YbqJBgkeI7F4fN3sW_YokVBQ",
+            authDomain: "midiaindoor-d2109.firebaseapp.com",
+            databaseURL: "https://midiaindoor-d2109-default-rtdb.firebaseio.com",
+            projectId: "midiaindoor-d2109",
+            storageBucket: "midiaindoor-d2109.appspot.com",
+            messagingSenderId: "549200922225",
+            appId: "1:549200922225:web:731664468eb51fbdf2bdd0"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+        const firestore = (typeof firebase.firestore === 'function') ? firebase.firestore() : null;
+        const db = firestore; // alias compatível com código anterior
+
+        function resolvePainelId() {
+            const q = getQueryParam('painel') || getQueryParam('id') || getQueryParam('panel');
+            return q || localStorage.getItem('painelId') || 'painel-default';
+        }
+
+        if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js')
         .then(function(reg){ console.log('Service Worker registrado:', reg.scope); })
         .catch(function(err){ console.warn('SW falhou:', err); });
@@ -449,45 +481,35 @@
       console.warn('Service Worker não suportado neste navegador.');
 }
 
-/* ---------- carregarDados: Firestore -> fallback RTDB ---------- */
-async function carregarDados(colecao, empresaId) {
-    if (!empresaId) {
-        console.error('empresaId ausente ao carregar dados da coleção', colecao);
-        return [];
-    }
+        /* ---------- carregarDados: Firestore -> fallback RTDB ---------- */
+        async function carregarDados(colecao, empresaId) {
+            if (!empresaId) {
+                console.error('empresaId ausente ao carregar dados da coleção', colecao);
+                return [];
+            }
 
-    // 1) Firestore
-    if (db) {
-        try {
-            const ref = db.collection('empresas').doc(empresaId).collection(colecao);
-            const snapshot = await ref.get();
-            const itens = [];
+            // 1) Firestore (SEM orderBy)
+            if (db) {
+                try {
+                    const ref = db.collection('empresas').doc(empresaId).collection(colecao);
+                    const snapshot = await ref.get();
+                    const itens = [];
 
-            snapshot.forEach(doc => {
-                const data = doc.data() || {};
-                data._id = doc.id;
-                data.ordem = Number(data.ordem) || 0;
-                itens.push(data);
-            });
+                    snapshot.forEach(doc => {
+                        const data = doc.data() || {};
+                        data._id = doc.id;
+                        data.ordem = Number(data.ordem) || 0;
+                        itens.push(data);
+                    });
 
-            itens.sort((a, b) => a.ordem - b.ordem);
+                    // ordena manualmente mesmo assim
+                    itens.sort((a, b) => a.ordem - b.ordem);
 
-            if (itens.length) return itens;
-        } catch (err) {
-            console.warn('Erro Firestore (continuando fallback RTDB):', err);
-        }
-    }
-
-    // 2) Fallback RTDB
-    try {
-        const snapRT = await database.ref(`empresas/${empresaId}/${colecao}`).once('value');
-        const val = snapRT.val() || {};
-        return Object.keys(val).map(id => ({ ...val[id], _id: id }));
-    } catch (err) {
-        console.error('Erro RTDB:', err);
-        return [];
-    }
-}
+                    if (itens.length) return itens;
+                } catch (err) {
+                    console.warn('Erro Firestore (continuando fallback RTDB):', err);
+                }
+            }
 
             // 2) Realtime Database (mantém sua ordem correta)
             try {
@@ -1401,4 +1423,3 @@ async function carregarDados(colecao, empresaId) {
 </body>
 
 </html>
-
