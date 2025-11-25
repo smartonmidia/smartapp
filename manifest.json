@@ -1,0 +1,23 @@
+{
+  "name": "SmartApp",
+  "short_name": "SmartApp",
+  "description": "Aplicativo SmartApp baseado no site da SmartOnMidia",
+  "start_url": "/smartapp/App/painelexibidor1.html",
+  "scope": "/smartapp/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0a0a0a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "App/audio/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "App/audio/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
