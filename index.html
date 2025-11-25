@@ -26,7 +26,6 @@
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             box-sizing: border-box;
         }
-        /* garante que padding do superior seja considerado */
         
         *,
         *:before,
@@ -39,7 +38,7 @@
             width: 100vw;
             height: 100vh;
             flex-direction: row;
-            transition: all 0.5s ease-in-out;
+            transition: all .5s ease-in-out;
         }
         
         body.rotated #wrapper {
@@ -53,7 +52,6 @@
         /* área de mídia */
         
         #superior {
-            /* centraliza a mídia e permite contain sem cortes */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -63,10 +61,9 @@
             background: #000;
             width: 100%;
             height: 100%;
-            /* reserva espaço para o rodapé (portrait) - será override em .rotated */
             padding-bottom: 60px;
+            /* reserva para rodapé */
         }
-        /* wrapper para mídia, facilita centralização absoluta */
         
         #superior .media-wrap {
             position: absolute;
@@ -89,30 +86,24 @@
             font-size: 1.1rem;
             box-sizing: border-box;
             z-index: 9999;
-            /* garantido */
-            /* transição suave caso queira animar */
-            transition: all 0.25s ease;
+            transition: all .25s ease;
         }
-        /* ======= PORTRAIT (padrão) ======= */
         
         body:not(.rotated) .rodape {
             height: 60px;
             width: 100vw;
             position: fixed;
-            /* <<< alterado para fixed */
             bottom: 0;
             left: 0;
             flex-direction: row;
             justify-content: space-between;
             z-index: 9999;
         }
-        /* ======= LANDSCAPE ROTATED (barra lateral) ======= */
         
         body.rotated .rodape {
             width: 60px;
             height: 100vh;
             position: fixed;
-            /* <<< alterado para fixed */
             top: 0;
             left: 0;
             flex-direction: column;
@@ -120,11 +111,9 @@
             align-items: center;
             z-index: 9999;
         }
-        /* reserva espaço para rodape no modo rotacionado */
         
         body.rotated #superior {
             padding-left: 60px;
-            /* reserva o espaço da barra lateral */
         }
         
         body.rotated .frase,
@@ -167,21 +156,26 @@
             max-height: 100%;
             object-fit: contain;
         }
+        /* transições sutis (find in / find out) */
         
         .fade {
             opacity: 0;
-            transition: opacity 1s;
+            transform: translateY(6px) scale(0.998);
+            filter: blur(0.6px);
+            transition: opacity 480ms cubic-bezier(.22, .95, .26, 1), transform 480ms cubic-bezier(.22, .95, .26, 1), filter 480ms;
             position: absolute;
             width: 100%;
             height: 100%;
+            will-change: opacity, transform, filter;
         }
         
         .active {
             opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
             z-index: 1;
         }
-        /* ===== Responsividade automática para mídias em #superior ===== */
-        /* garante que os filhos preencham o container */
+        /* Responsividade automática para mídias em #superior */
         
         #superior>* {
             position: absolute !important;
@@ -192,8 +186,6 @@
             padding: 0 !important;
             display: block !important;
         }
-        /* --- Troca para CONTAIN: mantém proporcionalidade, sem cortes --- */
-        /* elementos de mídia preenchendo o wrapper central, sem cortes */
         
         #superior img,
         #superior video,
@@ -210,7 +202,6 @@
             position: relative !important;
             background: black;
         }
-        /* Iframes costumam preencher, mantemos constraints para não cortar */
         
         #superior iframe {
             width: 100% !important;
@@ -226,25 +217,20 @@
             color: #fff !important;
         }
         
-        #superior .fade {
-            transition: opacity 1s !important;
-            will-change: opacity;
-        }
-        
         body.rotated #superior>* {
             position: absolute !important;
             inset: 0;
             width: 100% !important;
             height: 100% !important;
         }
-        /* pequenas melhorias visuais do overlay de carregamento */
+        /* overlay carregando */
         
         #carregandoOverlay {
             position: fixed;
             inset: 0;
             background: #0c0c0c;
             display: none;
-            /* inicialmente oculto - mostraremos via JS */
+            /* controlado via JS */
             flex-direction: column;
             justify-content: center;
             align-items: center;
@@ -252,7 +238,7 @@
             color: #e0e6ed;
             font-family: "Roboto Mono", "Consolas", monospace;
             text-align: center;
-            transition: opacity 0.9s ease;
+            transition: opacity 600ms cubic-bezier(.22, .95, .26, 1);
             will-change: opacity;
         }
         
@@ -260,7 +246,7 @@
             width: 420px;
             margin-bottom: 28px;
             opacity: 0.98;
-            transition: opacity 0.8s ease;
+            transition: opacity 700ms ease;
         }
         
         .brilho {
@@ -270,10 +256,10 @@
         @keyframes brilho {
             0%,
             100% {
-                opacity: 0.75;
+                opacity: .75
             }
             50% {
-                opacity: 1;
+                opacity: 1
             }
         }
         
@@ -288,11 +274,7 @@
         }
         
         .pontos .dot {
-            position: relative;
-            left: 0;
-            top: 0;
             font-size: 1.4em;
-            line-height: 1;
             opacity: 0;
             transition: opacity 120ms linear;
             color: #9fded6;
@@ -315,10 +297,11 @@
             align-items: center;
             justify-content: center;
             z-index: 100000;
-            background: rgba(0, 0, 0, 0.55);
+            background: rgba(0, 0, 0, 1);
+            /* <-- fundo PRETO sólido atrás do modal */
             visibility: hidden;
             opacity: 0;
-            transition: opacity 200ms ease, visibility 200ms;
+            transition: opacity 260ms cubic-bezier(.22, .95, .26, 1), visibility 260ms;
         }
         
         #uidModal.show {
@@ -327,38 +310,44 @@
         }
         
         #uidModal .box {
-            background: #0b0b0b;
+            background: linear-gradient(180deg, #07111a 0%, #04131a 100%);
             color: #fff;
-            padding: 28px;
+            padding: 26px;
             border-radius: 12px;
             width: min(720px, 92%);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
             text-align: center;
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            transform: translateY(8px) scale(.996);
+            transition: transform 260ms cubic-bezier(.22, .95, .26, 1), box-shadow 260ms;
+        }
+        
+        #uidModal.show .box {
+            transform: translateY(0) scale(1);
         }
         
         #uidModal h2 {
-            margin: 0 0 12px 0;
-            font-size: 1.4rem;
+            margin: 0 0 10px 0;
+            font-size: 1.35rem;
             font-weight: 700;
         }
         
         #uidModal p {
-            margin: 0 0 18px 0;
-            color: #cfd8dd;
+            margin: 0 0 16px 0;
+            color: #bcd3ea;
         }
         
         #empresaIdInput {
             width: 100%;
             padding: 12px 14px;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            background: rgba(255, 255, 255, 0.03);
-            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.02);
+            color: #f0f7ff;
             outline: none;
             box-sizing: border-box;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
         
         #uidButtons {
@@ -377,27 +366,27 @@
         
         .btn.primary {
             background: #ff6a00;
-            color: white;
+            color: #fff;
         }
         
         .btn.ghost {
             background: transparent;
             color: #e0e6ed;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
-        /* Carregamento texto maior */
+        /* carrega texto maior */
         
         #carregandoTexto {
-            font-size: 3.0rem;
+            font-size: 2.8rem;
             font-weight: 700;
         }
         
         #frase {
-            font-size: 1.6rem;
+            font-size: 1.15rem;
         }
         
         .pontos .dot {
-            font-size: 2.0rem;
+            font-size: 1.6rem;
         }
     </style>
 </head>
@@ -415,41 +404,39 @@
         </div>
     </div>
 
-    <!-- ======= Modal para solicitar UID / empresaId (aparece antes do carregamento) ======= -->
+    <!-- Modal UID (empresaId) -->
     <div id="uidModal" role="dialog" aria-modal="true" aria-labelledby="uidTitle" aria-describedby="uidDesc">
-        <div class="box">
+        <div class="box" role="document">
             <h2 id="uidTitle">Informe o UID (empresaId)</h2>
             <p id="uidDesc">Digite o UID/empresaId para carregar as mídias e configurações desta empresa.</p>
-            <input id="empresaIdInput" type="text" placeholder="Ex: UID123456789" />
+            <input id="empresaIdInput" type="text" placeholder="Ex: empresa3" />
             <div id="uidButtons">
-                <button id="btnCancelarModal" class="btn ghost">Cancelar</button>
-                <button id="btnConfirmModal" class="btn primary">OK</button>
+                <button id="btnCancelarModal" class="btn ghost" type="button">Cancelar</button>
+                <button id="btnConfirmModal" class="btn primary" type="button">OK</button>
             </div>
         </div>
     </div>
 
-    <style>
-        #carregandoTexto {
-            font-size: 2.4rem;
-            font-weight: 600;
-        }
-        
-        #frase {
-            font-size: 1.1rem;
-        }
-        
-        .pontos .dot {
-            font-size: 1.3rem;
-        }
-    </style>
+    <!-- TELA DE CARREGAMENTO -->
+    <div id="telaCarregamento" aria-hidden="true">
+        <div id="conteudoCarregamento">
+            <img src="./audio/logo.png" alt="Logo" id="logoCarregamento">
+            <div id="textoTerminal"></div>
+            <div id="cursorTerminal">█</div>
+        </div>
+    </div>
 
-    <link rel="manifest" href="manifest.json">
-    <script>
-        if ("serviceWorker" in navigator) {
-          navigator.serviceWorker.register("/smartapp/service-worker.js");
-        }
-    </script>
-
+    <div id="carregandoOverlay" aria-live="polite" role="status" aria-hidden="true">
+        <img id="logoCarregando" src="./audio/logo.png" alt="Logo" />
+        <div id="carregandoTexto" class="brilho">
+            <span id="frase" aria-hidden="true">&gt;Iniciando sistema</span>
+            <span class="pontos" aria-hidden="true" id="pontos">
+                <span class="dot" id="dot1">.</span>
+            <span class="dot" id="dot2">.</span>
+            <span class="dot" id="dot3">.</span>
+            </span>
+        </div>
+    </div>
 
     <script>
         /* ---------- Firebase init (compat) ---------- */
@@ -466,20 +453,12 @@
         const database = firebase.database();
         const auth = firebase.auth();
         const firestore = (typeof firebase.firestore === 'function') ? firebase.firestore() : null;
-        const db = firestore; // alias compatível com código anterior
+        const db = firestore;
 
         function resolvePainelId() {
             const q = getQueryParam('painel') || getQueryParam('id') || getQueryParam('panel');
             return q || localStorage.getItem('painelId') || 'painel-default';
         }
-
-        if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(function(reg){ console.log('Service Worker registrado:', reg.scope); })
-        .catch(function(err){ console.warn('SW falhou:', err); });
-} else {
-      console.warn('Service Worker não suportado neste navegador.');
-}
 
         /* ---------- carregarDados: Firestore -> fallback RTDB ---------- */
         async function carregarDados(colecao, empresaId) {
@@ -488,35 +467,30 @@
                 return [];
             }
 
-            // 1) Firestore (SEM orderBy)
+            // 1) Firestore
             if (db) {
                 try {
                     const ref = db.collection('empresas').doc(empresaId).collection(colecao);
                     const snapshot = await ref.get();
                     const itens = [];
-
                     snapshot.forEach(doc => {
                         const data = doc.data() || {};
                         data._id = doc.id;
                         data.ordem = Number(data.ordem) || 0;
                         itens.push(data);
                     });
-
-                    // ordena manualmente mesmo assim
                     itens.sort((a, b) => a.ordem - b.ordem);
-
                     if (itens.length) return itens;
                 } catch (err) {
                     console.warn('Erro Firestore (continuando fallback RTDB):', err);
                 }
             }
 
-            // 2) Realtime Database (mantém sua ordem correta)
+            // 2) Realtime Database
             try {
                 const ref = firebase.database().ref(`empresas/${empresaId}/${colecao}`);
                 const snapshot = await ref.orderByChild('ordem').once('value');
                 const items = [];
-
                 snapshot.forEach(childSnap => {
                     const v = childSnap.val() || {};
                     items.push({
@@ -525,10 +499,9 @@
                         ordem: Number(v.ordem) || 0
                     });
                 });
-
                 if (items.length) return items;
 
-                // fallback raiz
+                // fallback root
                 const rRoot = await firebase.database().ref(`${colecao}`).orderByChild('ordem').once('value');
                 const itemsRoot = [];
                 rRoot.forEach(childSnap => {
@@ -539,7 +512,6 @@
                         ordem: Number(v.ordem) || 0
                     });
                 });
-
                 return itemsRoot;
             } catch (e) {
                 console.warn('RTDB read error for', colecao, e);
@@ -547,12 +519,55 @@
             }
         }
 
-        /* ---------- carrossel principal ---------- */
+        /* ---------- util: delay default entre 12s e 14s para mídias não-programadas ---------- */
+        function defaultMediaDelay() {
+            // retorna entre 12000 e 14000 ms
+            return 12000 + Math.floor(Math.random() * 2001); // 12000..14000 inclusive
+        }
+
+        /* ---------- CARROSSEL CONTROL: instância global com stop() ---------- */
+        // window.carrosselInstance = { stop: () => {} } será criado por iniciarCarrossel
+        function stopCarrosselIfRunning() {
+            try {
+                if (window.carrosselInstance && typeof window.carrosselInstance.stop === 'function') {
+                    window.carrosselInstance.stop();
+                    window.carrosselInstance = null;
+                }
+            } catch (e) {
+                console.warn('Erro ao parar carrossel', e);
+            }
+        }
+
+        /* ---------- carrossel principal (agora cria carrosselInstance com stop()) ---------- */
         async function iniciarCarrossel(colecao, containerId, empresaId) {
+            // garante que qualquer carrossel anterior pare
+            stopCarrosselIfRunning();
+
             const container = document.getElementById(containerId);
             if (!container) return;
 
+            // controller local / retorno para permitir stop
+            let cancelled = false;
+            let currentTimer = null;
+
+            function limparTimer() {
+                if (currentTimer) {
+                    clearTimeout(currentTimer);
+                    currentTimer = null;
+                }
+            }
+
+            // registra controller global
+            window.carrosselInstance = {
+                stop: () => {
+                    cancelled = true;
+                    limparTimer();
+                }
+            };
+
             const itens = await carregarDados(colecao, empresaId);
+            if (cancelled) return;
+
             console.log('Itens carregados para carrossel', colecao, itens);
             if (!itens || !itens.length) {
                 container.innerHTML = '<div style="color:#fff;padding:20px">Nenhuma mídia para exibir.</div>';
@@ -560,17 +575,9 @@
             }
 
             let idx = 0;
-            let timer = null;
             const len = itens.length;
 
-            function limparTimer() {
-                if (timer) {
-                    clearTimeout(timer);
-                    timer = null;
-                }
-            }
-
-            function gerarEmbedSlidesFromUrl(u, defaultDelayMs = 12000) {
+            function gerarEmbedSlidesFromUrl(u, defaultDelayMs = 13000) {
                 if (!u) return null;
                 try {
                     if (/\/presentation\/d\/e\/[^/]+\/embed/i.test(u) || /\/presentation\/d\/[^/]+\/embed/i.test(u)) {
@@ -603,7 +610,6 @@
             function criarElemento(item) {
                 if (!item) return null;
 
-                // Texto (frase/frame) tem prioridade
                 if (item.texto) {
                     const d = document.createElement('div');
                     d.className = 'fade texto';
@@ -614,19 +620,16 @@
                 let src = String(item.embedUrl || item.url || item.imagem || item.video || '').trim();
                 const tipo = String(item.tipo || '').toUpperCase();
 
-                // Se for Google Slides em formato não-embed, tenta gerar embedUrl
                 if (src && /docs\.google\.com\/presentation/i.test(src)) {
-                    const embed = gerarEmbedSlidesFromUrl(src, Number(item.delayMs || item.delay || 12000));
+                    const embed = gerarEmbedSlidesFromUrl(src, Number(item.delayMs || item.delay || 13000));
                     if (embed) src = embed;
                 }
 
-                // função helper para criar um wrapper .media-wrap contendo o elemento
                 function wrapMedia(el) {
                     const wrap = document.createElement('div');
                     wrap.className = 'media-wrap fade';
                     wrap.style.position = 'absolute';
                     wrap.style.inset = '0';
-                    // garante que o elemento ocupe todo o wrapper e respeite object-fit
                     el.style.width = '100%';
                     el.style.height = '100%';
                     el.style.maxWidth = '100%';
@@ -636,15 +639,13 @@
                     return wrap;
                 }
 
-                // Caso especial para /d/e/<id>/embed -> usa /pub para ocultar barra inferior
+                // google slides handling (mesma lógica)
                 if (src && /\/presentation\/d\/e\/[^/]+\/embed/i.test(src)) {
                     const pubSrc = src.replace('/embed', '/pub');
                     const ifr = document.createElement('iframe');
-                    ifr.src = pubSrc + (pubSrc.includes('?') ? '' : '?') + 'start=true&loop=true&delayms=12000';
+                    ifr.src = pubSrc + (pubSrc.includes('?') ? '' : '?') + 'start=true&loop=true&delayms=13000';
                     ifr.frameBorder = '0';
                     ifr.setAttribute('allowfullscreen', 'true');
-                    ifr.setAttribute('mozallowfullscreen', 'true');
-                    ifr.setAttribute('webkitallowfullscreen', 'true');
                     ifr.style.width = '100%';
                     ifr.style.height = '110%';
                     ifr.style.marginTop = '-40px';
@@ -660,6 +661,7 @@
                     containerIframe.style.background = 'black';
 
                     const loading = document.createElement('div');
+                    loading.style.position = 'absolute';
                     loading.style.top = '50%';
                     loading.style.left = '50%';
                     loading.style.transform = 'translate(-50%, -50%)';
@@ -667,6 +669,7 @@
                     loading.style.fontSize = '22px';
                     loading.style.fontFamily = 'sans-serif';
                     loading.style.opacity = '0.8';
+                    loading.textContent = 'Carregando...';
                     containerIframe.appendChild(loading);
 
                     const ifr = document.createElement('iframe');
@@ -680,12 +683,11 @@
                     containerIframe.appendChild(ifr);
 
                     setTimeout(() => {
-                        ifr.style.transition = 'opacity 1s ease';
+                        ifr.style.transition = 'opacity 700ms ease';
                         ifr.style.opacity = '1';
                         loading.remove();
                     }, 1500);
 
-                    // encapsula para manter comportamento consistente
                     const wrapper = document.createElement('div');
                     wrapper.className = 'media-wrap fade';
                     wrapper.style.position = 'absolute';
@@ -694,7 +696,7 @@
                     return wrapper;
                 }
 
-                // VÍDEOS
+                // VIDEOS
                 if (tipo === 'VIDEO' || /\.mp4($|\?)/i.test(src) || /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(src)) {
                     const v = document.createElement('video');
                     v.src = src;
@@ -703,24 +705,17 @@
                     v.playsInline = true;
                     v.controls = false;
                     v.preload = 'auto';
-
-                    // estilos: ocupar o máximo do wrapper sem cortar (contain)
                     v.style.objectFit = 'contain';
                     v.style.objectPosition = 'center center';
                     v.style.backgroundColor = 'black';
                     v.style.width = '100%';
                     v.style.height = '100%';
-                    v.style.maxWidth = '100%';
-                    v.style.maxHeight = '100%';
                     v.style.display = 'block';
                     v.style.position = 'relative';
 
                     const wrapped = wrapMedia(v);
 
-                    // controlar término, erro, timeout
-                    v.onended = () => {
-                        // deixa o carrossel cuidar da troca — o caller controla timers
-                    };
+                    v.onended = () => {};
                     v.onerror = () => console.warn('Video erro (elemento):', src);
 
                     return wrapped;
@@ -739,7 +734,7 @@
                     return wrapMedia(img);
                 }
 
-                // SITES / IFRAME genérico
+                // IFRAME genérico
                 if (/^https?:\/\//i.test(src)) {
                     const ifr = document.createElement('iframe');
                     ifr.src = src;
@@ -750,7 +745,6 @@
                     return wrapMedia(ifr);
                 }
 
-                // fallback nulo
                 return null;
             }
 
@@ -770,6 +764,7 @@
             }
 
             async function mostrarProximo() {
+                if (cancelled) return;
                 limparTimer();
 
                 let tentativas = 0;
@@ -778,11 +773,12 @@
                     const el = criarElemento(item);
 
                     if (el) {
-                        // limpa e prepara container
+                        // se cancelado entre a criação e aqui, aborta
+                        if (cancelled) return;
+
                         container.innerHTML = '';
                         container.style.background = '#000';
 
-                        // assegura que o elemento ocupe todo o container
                         el.style.position = 'absolute';
                         el.style.inset = '0';
                         el.style.width = '100%';
@@ -790,23 +786,19 @@
 
                         container.appendChild(el);
 
-                        // logs
                         registrarExibicaoSafe(item, idx);
 
-                        // iniciar fade-in
-                        setTimeout(() => el.classList.add('active'), 40);
+                        setTimeout(() => el.classList.add('active'), 30);
 
-                        // se for video dentro do wrapper, pega o vídeo real
                         const videoEl = el.querySelector && el.querySelector('video');
 
                         if (videoEl) {
-                            // espera terminar ou faz timeout caso não carregue
                             videoEl.onended = () => {
                                 el.classList.remove('active');
                                 setTimeout(() => {
                                     idx = (idx + 1) % len;
-                                    mostrarProximo();
-                                }, 1000);
+                                    if (!cancelled) mostrarProximo();
+                                }, 380);
                             };
 
                             videoEl.onerror = () => {
@@ -814,48 +806,49 @@
                                 el.classList.remove('active');
                                 setTimeout(() => {
                                     idx = (idx + 1) % len;
-                                    mostrarProximo();
-                                }, 1000);
+                                    if (!cancelled) mostrarProximo();
+                                }, 380);
                             };
 
-                            // se o vídeo não iniciar em X ms, pula
-                            timer = setTimeout(() => {
+                            currentTimer = setTimeout(() => {
                                 try {
                                     if (!videoEl.readyState || videoEl.readyState < 2) {
                                         console.warn('Video timeout — pulando');
                                         el.classList.remove('active');
                                         setTimeout(() => {
                                             idx = (idx + 1) % len;
-                                            mostrarProximo();
-                                        }, 1000);
+                                            if (!cancelled) mostrarProximo();
+                                        }, 380);
                                     }
                                 } catch (e) {
                                     idx = (idx + 1) % len;
-                                    setTimeout(mostrarProximo, 0);
+                                    if (!cancelled) setTimeout(mostrarProximo, 0);
                                 }
                             }, 8000);
                         } else {
-                            const tag = (el.tagName || el.firstElementChild && el.firstElementChild.tagName || '').toUpperCase();
+                            const tag = (el.tagName || (el.firstElementChild && el.firstElementChild.tagName) || '').toUpperCase();
                             let delay;
-                            if (tag === 'IMG' || tag === 'IFRAME' || tag === 'DIV') {
-                                delay = 12000;
+                            if (item && (item.delayMs || item.delay)) {
+                                delay = Math.max(2000, Number(item.delayMs || item.delay));
                             } else {
-                                delay = Math.max(2000, Number(item.delayMs || item.delay || 7000));
+                                delay = defaultMediaDelay(); // 12..14s
+                            }
+                            if (tag === 'IMG' || tag === 'IFRAME' || tag === 'DIV') {
+                                if (delay < 12000 || delay > 14000) delay = Math.max(12000, Math.min(14000, delay));
                             }
 
-                            timer = setTimeout(() => {
+                            currentTimer = setTimeout(() => {
                                 el.classList.remove('active');
                                 setTimeout(() => {
                                     idx = (idx + 1) % len;
-                                    mostrarProximo();
-                                }, 1000);
+                                    if (!cancelled) mostrarProximo();
+                                }, 360);
                             }, delay);
                         }
 
                         return;
                     }
 
-                    // se elemento inválido, tenta próximo
                     tentativas++;
                     idx = (idx + 1) % len;
                 }
@@ -863,6 +856,12 @@
                 console.warn('Nenhum item válido encontrado.');
                 container.innerHTML = '<div style="color:#fff;padding:20px">Nenhuma mídia válida encontrada.</div>';
             }
+
+            // expose stop on instance to also clear the timer
+            window.carrosselInstance.stop = () => {
+                cancelled = true;
+                limparTimer();
+            };
 
             mostrarProximo();
         }
@@ -888,7 +887,6 @@
 
             if (!frases.length) {
                 console.warn('Frases carregadas, mas nenhum campo reconhecido (texto/frase/mensagem). Veja docs no console.');
-                console.log(docs);
                 document.getElementById("fraseRodape").textContent = docs[0].texto || docs[0].frase || 'Mensagem disponível';
                 return;
             }
@@ -945,17 +943,14 @@
                 const res = await fetch(`https://wttr.in/${cidade.query}?format=%t`);
                 const temp = await res.text();
                 if (temp.toLowerCase().includes("unknown location")) throw new Error("Indisponível");
-                document.getElementById("cidadeClima").innerText = `🌡️ ${cidade.nome}: ${temp.replace('+', '')}`;
+                document.getElementById("cidadeClima").innerText = `🌡️ ${cidade.nome}: ${temp.replace('+','')}`;
             } catch {
                 document.getElementById("cidadeClima").innerText = `⛅ ${cidade.nome}: Dados não disponíveis`;
             }
             cidadeIndex = (cidadeIndex + 1) % cidades.length;
         }
 
-        /* -------------------------
-           Função utilitária: atualiza a URL no navegador sem reload
-           Deve estar definida antes de resolveEmpresaIdForPage
-           ------------------------- */
+        /* util: update URL param without reload */
         function atualizarParametroNaUrl(paramName, paramValue) {
             try {
                 if (paramValue === null || paramValue === undefined) return;
@@ -967,11 +962,11 @@
             }
         }
 
-        /* ---------- onAuthStateChanged: resolve empresaId e inicializa ---------- */
+        /* ---------- onAuthStateChanged: resolve empresaId e inicializa ----------
+           Observação: se o modal estiver visível, NÃO iniciamos o carrossel automaticamente. */
         auth.onAuthStateChanged(async user => {
             try {
                 const userUid = user ? user.uid : null;
-
                 window.empresaId = await resolveEmpresaIdForPage(userUid);
                 window.painelId = resolvePainelId();
 
@@ -987,8 +982,14 @@
                     console.warn('Erro ao carregar orientação (continuando):', err);
                 }
 
-                iniciarCarrossel('midias', 'superior', window.empresaId);
-                carregarFrases();
+                // se modal está sendo mostrado, não iniciar o carrossel automaticamente
+                const modal = document.getElementById('uidModal');
+                if (modal && modal.classList && modal.classList.contains('show')) {
+                    console.log('Modal ativo — adiando start do carrossel até confirmação.');
+                } else {
+                    iniciarCarrossel('midias', 'superior', window.empresaId);
+                    carregarFrases();
+                }
             } catch (e) {
                 console.error('Erro na inicialização do painel dentro de onAuthStateChanged:', e);
                 try {
@@ -1008,9 +1009,8 @@
             }
         }
 
-        // ---------- resolveEmpresaIdForPage (versão completa recomendada) ----------
+        // ---------- resolveEmpresaIdForPage ----------
         async function resolveEmpresaIdForPage(userUid) {
-            // prioriza query params
             const q = getQueryParam('empresa') || getQueryParam('empresaId');
             if (q) {
                 localStorage.setItem('empresaId', q);
@@ -1018,7 +1018,6 @@
                 return q;
             }
 
-            // PRIORIDADE: localStorage (preenchido pelo modal)
             const ls = localStorage.getItem('empresaId');
             if (ls) {
                 atualizarParametroNaUrl('empresaId', ls);
@@ -1059,19 +1058,13 @@
             return padrao;
         }
 
-        // ------------------------------------------------------------------------------------
-        // ORIENTAÇÃO — CARREGAR E APLICAR AUTOMATICAMENTE
-        // ------------------------------------------------------------------------------------
+        // ORIENTAÇÃO (mantive)
         function aplicarOrientacao(orientacao) {
-            if (orientacao === "landscape") {
-                document.body.classList.add("rotated");
-            } else {
-                document.body.classList.remove("rotated");
-            }
+            if (orientacao === "landscape") document.body.classList.add("rotated");
+            else document.body.classList.remove("rotated");
             try {
                 localStorage.setItem('painel_orientacao', orientacao);
             } catch (e) {}
-            // chama ajuste imediato
             ajustarMidiaParaNaoPassarDoRodape();
         }
 
@@ -1082,9 +1075,7 @@
                     if (saved) aplicarOrientacao(saved);
                     return;
                 }
-                const snap = await firebase.database()
-                    .ref(`empresas/${empresaId}/painel/orientacao`)
-                    .once("value");
+                const snap = await firebase.database().ref(`empresas/${empresaId}/painel/orientacao`).once("value");
                 const orientacao = snap.val();
                 if (orientacao) aplicarOrientacao(orientacao);
             } catch (e) {
@@ -1092,28 +1083,22 @@
             }
         }
 
-        /* ---------- inicialização imediata/cron ---------- */
+        /* inicialização imediata/cron */
         atualizarRelogio();
         atualizarTemperatura();
         setInterval(atualizarRelogio, 10000);
         setInterval(atualizarTemperatura, 60000);
 
-        // tecla V: alterna orientação e salva no Firebase (ignora se o usuário está digitando)
+        // tecla V alterna orientação (ignora inputs)
         document.addEventListener('keydown', async(e) => {
             const tag = (document.activeElement && document.activeElement.tagName) || '';
             if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
             if (e.ctrlKey || e.metaKey || e.altKey) return;
-
             if (e.key && e.key.toLowerCase() === 'v') {
                 const nova = document.body.classList.contains('rotated') ? 'portrait' : 'landscape';
                 aplicarOrientacao(nova);
-
                 if (window.empresaId) {
-                    firebase.database()
-                        .ref(`empresas/${window.empresaId}/painel/orientacao`)
-                        .set(nova)
-                        .then(() => console.log('Orientação salva no Firebase:', nova))
-                        .catch(err => console.warn('Erro ao salvar orientação:', err));
+                    firebase.database().ref(`empresas/${window.empresaId}/painel/orientacao`).set(nova).then(() => console.log('Orientação salva no Firebase:', nova)).catch(err => console.warn('Erro ao salvar orientação:', err));
                 } else {
                     try {
                         localStorage.setItem('painel_orientacao', nova);
@@ -1123,136 +1108,84 @@
             }
         });
 
-        /**
-         * Ajusta mídias para não ultrapassar / ficar por trás do rodapé.
-         * - Seleciona corretamente .rodape
-         * - Em portrait limita altura disponível (maxHeight)
-         * - Em rotated limita largura disponível (maxWidth)
-         */
+        /* Ajusta mídias para não ficar por trás do rodapé */
         function ajustarMidiaParaNaoPassarDoRodape() {
             const rodape = document.querySelector('.rodape');
             const midiaContainer = document.querySelector('#superior');
-
             if (!rodape || !midiaContainer) return;
-
             const isRotated = document.body.classList.contains('rotated');
 
             if (!isRotated) {
-                // portrait: rodapé embaixo
                 const rodapeHeight = rodape.offsetHeight || 60;
                 const telaAltura = window.innerHeight;
                 const alturaDisponivel = Math.max(0, telaAltura - rodapeHeight);
-
-                // vamos garantir padding-bottom consistente (caso alguém altere)
                 midiaContainer.style.paddingBottom = rodapeHeight + 'px';
 
-                // para cada vídeo ou imagem dentro do container
-                document.querySelectorAll('#superior .media-wrap video, #superior .media-wrap img')
-                    .forEach(midia => {
-
-                        // remove ajustes anteriores
-                        midia.style.height = '';
-                        midia.style.width = '';
-                        midia.style.maxHeight = '';
-                        midia.style.maxWidth = '';
-                        midia.style.objectFit = 'contain';
-                        midia.style.transform = '';
-
-                        // define que o máximo da mídia é a área útil (alt)
-                        midia.style.maxHeight = alturaDisponivel + 'px';
-                        midia.style.maxWidth = '100%';
-
-                        // se ainda ultrapassar (casos raros), aplica leve redução
-                        const atualAltura = midia.offsetHeight || midia.getBoundingClientRect().height;
-                        if (atualAltura > alturaDisponivel) {
-                            const fator = alturaDisponivel / atualAltura;
-                            midia.style.transform = `scale(${fator})`;
-                        }
-                    });
+                document.querySelectorAll('#superior .media-wrap video, #superior .media-wrap img').forEach(midia => {
+                    midia.style.height = '';
+                    midia.style.width = '';
+                    midia.style.maxHeight = '';
+                    midia.style.maxWidth = '';
+                    midia.style.objectFit = 'contain';
+                    midia.style.transform = '';
+                    midia.style.maxHeight = alturaDisponivel + 'px';
+                    midia.style.maxWidth = '100%';
+                    const atualAltura = midia.offsetHeight || midia.getBoundingClientRect().height;
+                    if (atualAltura > alturaDisponivel) {
+                        const fator = alturaDisponivel / atualAltura;
+                        midia.style.transform = `scale(${fator})`;
+                    }
+                });
             } else {
-                // rotated: rodapé lateral
                 const rodapeWidth = rodape.offsetWidth || 60;
                 const telaLargura = window.innerWidth;
                 const larguraDisponivel = Math.max(0, telaLargura - rodapeWidth);
-
-                // garante padding-left consistente
                 midiaContainer.style.paddingLeft = rodapeWidth + 'px';
 
-                document.querySelectorAll('#superior .media-wrap video, #superior .media-wrap img')
-                    .forEach(midia => {
-                        midia.style.height = '';
-                        midia.style.width = '';
-                        midia.style.maxHeight = '';
-                        midia.style.maxWidth = '';
-                        midia.style.objectFit = 'contain';
-                        midia.style.transform = '';
-
-                        // define que o máximo da mídia é a área útil (larg)
-                        midia.style.maxWidth = larguraDisponivel + 'px';
-                        midia.style.maxHeight = '100%';
-
-                        // se ainda ultrapassar em largura, reduz
-                        const atualLargura = midia.offsetWidth || midia.getBoundingClientRect().width;
-                        if (atualLargura > larguraDisponivel) {
-                            const fator = larguraDisponivel / atualLargura;
-                            midia.style.transform = `scale(${fator})`;
-                        }
-                    });
+                document.querySelectorAll('#superior .media-wrap video, #superior .media-wrap img').forEach(midia => {
+                    midia.style.height = '';
+                    midia.style.width = '';
+                    midia.style.maxHeight = '';
+                    midia.style.maxWidth = '';
+                    midia.style.objectFit = 'contain';
+                    midia.style.transform = '';
+                    midia.style.maxWidth = larguraDisponivel + 'px';
+                    midia.style.maxHeight = '100%';
+                    const atualLargura = midia.offsetWidth || midia.getBoundingClientRect().width;
+                    if (atualLargura > larguraDisponivel) {
+                        const fator = larguraDisponivel / atualLargura;
+                        midia.style.transform = `scale(${fator})`;
+                    }
+                });
             }
         }
 
-        // roda no load
         window.addEventListener('load', () => {
-            ajustarMidiaParaNaoPassarDoRodape();
-            // NÃO iniciamos a tela de carregamento automaticamente aqui; controlamos via modal/start
+            ajustarMidiaParaNaoPassarDoRodape(); /* carregamento controlado pelo modal */
         });
-
-        // roda sempre que trocar de mídia
         document.addEventListener('DOMContentLoaded', () => {
             setInterval(ajustarMidiaParaNaoPassarDoRodape, 500);
         });
-
-        // roda quando girar a tela / alterar tamanho
         window.addEventListener('resize', ajustarMidiaParaNaoPassarDoRodape);
-    </script>
 
-    <!-- TELA DE CARREGAMENTO -->
-    <div id="telaCarregamento" aria-hidden="true">
-        <div id="conteudoCarregamento">
-            <img src="./audio/logo.png" alt="Logo" id="logoCarregamento">
-            <div id="textoTerminal"></div>
-            <div id="cursorTerminal">█</div>
-        </div>
-    </div>
-
-    <div id="carregandoOverlay" aria-live="polite" role="status" aria-hidden="true">
-        <img id="logoCarregando" src="./audio/logo.png" alt="Logo" />
-        <div id="carregandoTexto" class="brilho">
-            <span id="frase" aria-hidden="true">&gt;Iniciando sistema</span>
-            <span class="pontos" aria-hidden="true" id="pontos">
-                <span class="dot" id="dot1">.</span>
-            <span class="dot" id="dot2">.</span>
-            <span class="dot" id="dot3">.</span>
-            </span>
-        </div>
-    </div>
-
-    <script>
-        /**
-         * Script de controle do modal + inicialização do carregador.
-         * - Se localStorage.empresaId existir: usa direto e inicia carregamento.
-         * - Se não: mostra modal. Ao confirmar: salva, chama carregarOrientacao, e inicia carregamento.
-         */
-
-        // --- elementos do modal ---
+        /* ---------- Modal + inicialização carregamento ---------- */
         const uidModal = document.getElementById('uidModal');
         const empresaIdInput = document.getElementById('empresaIdInput');
         const btnConfirmModal = document.getElementById('btnConfirmModal');
         const btnCancelarModal = document.getElementById('btnCancelarModal');
 
-        function showModal() {
+        function showModal(prefill = '') {
+            // limpa o #superior e para carrossel enquanto modal está visível
+            stopCarrosselIfRunning();
+            const sup = document.getElementById('superior');
+            if (sup) {
+                sup.innerHTML = '';
+                sup.style.background = '#000';
+            }
+
+            if (prefill) empresaIdInput.value = prefill;
             uidModal.classList.add('show');
-            empresaIdInput.focus();
+            setTimeout(() => empresaIdInput.focus(), 80);
         }
 
         function hideModal() {
@@ -1260,16 +1193,12 @@
         }
 
         function startLoadingOverlay() {
-            // mostra overlay e inicia a sequência de frases
             const overlay = document.getElementById('carregandoOverlay');
             overlay.style.display = 'flex';
             overlay.setAttribute('aria-hidden', 'false');
-
-            // iniciar a sequência de frases (mesma lógica que já existia, porém acionada manualmente)
             startCarregamentoFrases();
         }
 
-        // Função que contém a lógica do IIFE anterior para as frases — agora acionável
         function startCarregamentoFrases() {
             const frases = [{
                 txt: "Iniciando sistema",
@@ -1287,17 +1216,11 @@
                 txt: "Preparando interface",
                 time: 1500
             }];
-
             const fraseEl = document.getElementById("frase");
             const pontosWrapper = document.getElementById("pontos");
             const logo = document.getElementById("logoCarregando");
             const overlay = document.getElementById("carregandoOverlay");
-            const dots = [
-                document.getElementById("dot1"),
-                document.getElementById("dot2"),
-                document.getElementById("dot3")
-            ];
-
+            const dots = [document.getElementById("dot1"), document.getElementById("dot2"), document.getElementById("dot3")];
             const pontosSeq = ["", ".", "..", "...", "", ".", "..", "..."];
             let pontosInterval = null;
             let seqIdx = 0;
@@ -1306,9 +1229,7 @@
                 clearInterval(pontosInterval);
                 pontosInterval = setInterval(() => {
                     const current = pontosSeq[seqIdx];
-                    dots.forEach((d, i) => {
-                        d.style.opacity = i < current.length ? "1" : "0";
-                    });
+                    dots.forEach((d, i) => d.style.opacity = i < current.length ? "1" : "0");
                     seqIdx = (seqIdx + 1) % pontosSeq.length;
                 }, speed);
             }
@@ -1323,23 +1244,17 @@
             function showPhrase(i) {
                 fraseEl.textContent = frases[i].txt;
                 startPontosInterval(350);
-
                 setTimeout(() => {
                     fraseEl.classList.add('fadeOutShort');
                     pontosWrapper.classList.add('fadeOutShort');
-
                     setTimeout(() => {
                         fraseEl.classList.remove('fadeOutShort');
                         pontosWrapper.classList.remove('fadeOutShort');
                         stopPontosInterval();
-
                         phraseIndex++;
-                        if (phraseIndex < frases.length) {
-                            setTimeout(() => showPhrase(phraseIndex), 200);
-                        } else {
-                            finishLoading();
-                        }
-                    }, 400);
+                        if (phraseIndex < frases.length) setTimeout(() => showPhrase(phraseIndex), 200);
+                        else finishLoading();
+                    }, 420);
                 }, frases[i].time);
             }
 
@@ -1357,66 +1272,92 @@
                     }, 800);
                 }, 900);
             }
-
-            // start
             setTimeout(() => showPhrase(0), 300);
         }
 
-        // botões do modal
-        btnConfirmModal.addEventListener('click', () => {
+        btnConfirmModal.addEventListener('click', async() => {
             const val = String(empresaIdInput.value || '').trim();
             if (!val) {
                 empresaIdInput.focus();
                 return;
             }
-            // salvar no localStorage
+
+            // salva, define global
             localStorage.setItem('empresaId', val);
-            // set global quickly
             window.empresaId = val;
-
-            // aplicar orientacao já (tenta buscar no Firebase)
-            carregarOrientacao(window.empresaId).catch(() => {});
-
-            // esconder modal e iniciar carregamento
+            // esconder modal
             hideModal();
+
+            // iniciar carregamento visual
             startLoadingOverlay();
 
-            // tirar atributo de aria-hidden do overlay para leitores
-            document.getElementById('carregandoOverlay').setAttribute('aria-hidden', 'false');
+            // carregar orientacao e só então iniciar carrossel com a empresa escolhida
+            try {
+                await carregarOrientacao(window.empresaId);
+            } catch (e) {
+                console.warn('carregarOrientacao erro', e);
+            }
+
+            // inicia carrossel e frases explicitamente para esta empresa
+            iniciarCarrossel('midias', 'superior', window.empresaId);
+            carregarFrases();
         });
 
         btnCancelarModal.addEventListener('click', () => {
-            // se cancelar, apenas fechar modal; não iniciar painel
+            // se cancelar, apenas fecha modal. Mantemos a tela preta (sem iniciar painel)
             hideModal();
-        });
-
-        // também permita Enter no input
-        empresaIdInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                btnConfirmModal.click();
+            const sup = document.getElementById('superior');
+            if (sup) {
+                sup.innerHTML = '';
+                sup.style.background = '#000';
             }
         });
 
-        // Ao carregar a página: se já há empresaId => iniciar direto; senão mostrar modal
-        window.addEventListener('DOMContentLoaded', () => {
+        empresaIdInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') btnConfirmModal.click();
+        });
+
+        // Ao carregar: se já existe empresaId salvo => entra direto; se não => mostra modal
+        window.addEventListener('DOMContentLoaded', async() => {
             const existing = localStorage.getItem('empresaId');
             if (existing) {
-                // define global e carrega orientacao antes de iniciar carregamento
+                // inicia direto sem mostrar modal
                 window.empresaId = existing;
-                carregarOrientacao(window.empresaId).finally(() => {
-                    startLoadingOverlay();
-                });
+                startLoadingOverlay();
+                try {
+                    await carregarOrientacao(window.empresaId);
+                } catch (e) {
+                    console.warn('carregarOrientacao erro', e);
+                }
+                iniciarCarrossel('midias', 'superior', window.empresaId);
+                carregarFrases();
             } else {
-                // mostra modal para o usuário preencher
                 showModal();
             }
         });
-    </script>
 
-    <script>
-        // sobe todos os vídeos um pouco (mantive no fim, como antes)
+        // helper: apply subtle transform on any media-wrap added later
+        (function observeMediaWraps() {
+            const root = document.getElementById('superior');
+            if (!root || !window.MutationObserver) return;
+            const mo = new MutationObserver((mutations) => {
+                mutations.forEach(m => {
+                    m.addedNodes.forEach(n => {
+                        if (n.nodeType === 1 && n.classList && n.classList.contains('media-wrap')) {
+                            n.style.transition = 'opacity 480ms cubic-bezier(.22,.95,.26,1), transform 480ms, filter 480ms';
+                        }
+                    });
+                });
+            });
+            mo.observe(root, {
+                childList: true,
+                subtree: false
+            });
+        })();
+
+        // ajuste inicial de qualquer vídeo (manter compat)
         document.querySelectorAll('#superior .media-wrap video').forEach(v => {
-            v.style.transform = 'translateY(-20px)'; // ajuste conforme necessário
+            v.style.transform = 'translateY(-20px)';
             v.style.zIndex = '1000';
         });
     </script>
